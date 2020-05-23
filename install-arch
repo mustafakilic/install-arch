@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+
+LETRAD=""
+
+DROOT=""
+
+DSWAP=""
+
+DHOST=""
+
+DINTE=`ip a|egrep '^2'|cut -d : -f 2|sed 's/^ *//'`
+
+DUSR=""
+
+NOMEDUSR=""
+
+loadkeys br-abnt2
+
+echo "pt_BR.UTF-8 UTF-8" > /etc/locale.gen
+
+locale-gen
+
+export LANG=pt_BR.UTF-8
+
+ping -c 3 archlinux.org || echo "Não a conexão a internet" ; sleep 5
+
+timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; timedatectl status ; sleep 5
+
+clear ; fdisk -lL | egrep "^Disco"
+
+echo "Qual o disco vai usar, exemplo sd[a-z]:"
+
+read LETRAD
+
+clear ; echo "Usando tabela GPT, crie três partições a sda1 como partição “BIOS inicialização” de no mínimo 4MB a sda2 será a raiz do sistema e a sda3 será swap de no mínimo 512MB." ; sleep 10
+
+fdisk /dev/sd"$LETRAD"
+
+clear ; echo "Qual o número da partição que será a raiz?"
+read DROOT
+
+if [[ `mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD""$DROOT"` ]];
+        
+        then
+		mount /dev/sd"$LETRAD""$DROOT" /mnt
+	else
+		echo "Erro na sintaxe" ; exit
+fi
+
+clear ; echo "Qual o número da partição que será a swap"
+
+read DSWAP
+
+if [[ `mkswap -L SWAP /dev/sd"$LETRAD""$DSWAP"` ]];
+	then
+		swapon /dev/sd"$LETRAD""$DSWAP"
+	else
+		echo "Erro na sintaxe"
+	
+fi
+
+echo "Server = http://10.0.0.2/$repo/os/$arch" > /etc/pacman.d/mirrorlist
+
+cp -axv / /mnt
+
+cp -vaT /run/archiso/bootmnt/arch/boot/$(uname -m)/vmlinuz /mnt/boot/vmlinuz-linux
+
+genfstab -U /mnt >> /mnt/etc/fstab
+
+clear ; echo "Qual o nome do seu PC"
+
+read DHOST
+
+clear ; echo "Qual o nome de usuário(Use apenas a-z 0-9). Este usuśrio tera poder de root"
+
+read DUSR
+
+clear ; echo "Qual seu nome completo."
+
+read NOMEDUSR
+
+cat <<EOF > /mnt/root/part2.sh
+
+sed -i 's/Storage=volatile/#Storage=auto/' /etc/systemd/journald.conf
+
+rm /etc/udev/rules.d/81-dhcpcd.rules
+
+systemctl disable pacman-init.service choose-mirror.service
+
+rm -r /etc/systemd/system/{choose-mirror.service,pacman-init.service,etc-pacman.d-gnupg.mount,getty@tty1.service.d}
+
+rm /etc/systemd/scripts/choose-mirror
+
+rm /etc/systemd/system/getty@tty1.service.d/autologin.conf
+
+rm /root/{.automated_script.sh,.zlogin}
+
+rm /etc/mkinitcpio-archiso.conf
+
+rm -r /etc/initcpio
+
+pacman-key --init
+
+pacman-key --populate archlinux
+
+ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+
+hwclock --systohc
+
+echo "pt_BR.UTF-8 UTF-8" > /etc/locale.gen
+
+locale-gen
+
+export LANG=pt_BR.UTF-8
+
+echo "LANG=pt_BR.UTF-8" > /etc/locale.conf
+
+echo "KEYMAP=br-abnt2" > /etc/vconsole.conf
+
+echo $DHOST > /etc/hostname
+
+echo "127.0.0.1	localhost.localdomain	localhost
+::1		localhost.localdomain	localhost
+127.0.1.1	$DHOST.localdomain	$DHOST" > /etc/hosts
+
+systemctl enable dhcpcd.service
+
+cp /etc/netctl/examples/ethernet-dhcp /etc/netctl/$DINTE
+
+sed -i 's/Interface=eth0/Interface=$DINTE/' /etc/netctl/$DINTE
+
+netctl enable $DINTE
+
+mkinitcpio -P
+
+passwd -l root
+
+sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+
+useradd -m -G wheel -s /bin/zsh $DUSR
+
+usermod -c $NOMEDUSR $DUSR
+
+clear ; echo "Digite sua senha $NOMEDUSR"
+
+passwd $DUSR
+
+if [[  -e /sys/firmware/efi/efivars ]];
+	then
+		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
+	else
+		grub-install --target=i386-pc /dev/sd$LETRAD
+	
+fi
+
+sed -i 's/#GRUB_THEME="\/path\/to\/gfxtheme"/GRUB_THEME="\/boot\/grub\/themes\/starfield\/theme.txt"/' /etc/default/grub
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+exit
+
+EOF
+
+chmod 700 /mnt/root/part2.sh && arch-chroot /mnt /root/part2.sh
+
+rm /mnt/root/part2.sh
+
+umount -R /mnt
+
+echo "=== MENU FINAL ==="
+
+select i in poweoff reboot
+do
+
+   case "$i" in
+
+      poweroff)
+	 poweroff
+         ;;
+
+      reboot)
+         reboot
+         ;;
+
+   esac
+
+done
+
+exit 0
