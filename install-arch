@@ -169,7 +169,7 @@ umount -R /mnt
 
 echo "=== MENU FINAL ==="
 
-select i in poweoff reboot
+select i in poweroff reboot
 do
 
    case "$i" in
