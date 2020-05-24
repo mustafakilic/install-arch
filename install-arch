@@ -26,7 +26,7 @@ ping -c 3 archlinux.org || echo "Não a conexão a internet" ; sleep 5
 
 timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; timedatectl status ; sleep 10
 
-clear ; fdisk -l | egrep "^Disco" ;
+clear ; echo "##########" ; fdisk -l | egrep "^Disco /dev/sd" ; echo "##########"
 
 echo "Qual o disco vai usar, exemplo sd[a-z]:"
 
