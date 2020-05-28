@@ -159,6 +159,8 @@ clear ; echo "Qual seu nome completo."
 
 read NOMEDUSR
 
+clear
+
 while [[ true ]];
 do
 
@@ -174,7 +176,7 @@ clear
 
 if [[ "$DPASSWD0" = "$DPASSWD1" ]];
 	then
-		echo "Sua senha é $DPASSWD0\." ; break
+		break
 	else
 		echo "As senhas não são iguais."
 fi
@@ -260,7 +262,7 @@ exit
 
 EOF
 
-chmod 700 /mnt/root/part2.sh && arch-chroot /mnt/root/part2.sh
+chmod 700 /mnt/root/part2.sh && arch-chroot /mnt/ root/part2.sh
 
 rm /mnt/root/part2.sh
 
