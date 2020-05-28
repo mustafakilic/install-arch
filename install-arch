@@ -209,6 +209,7 @@ mkinitcpio -P
 
 passwd -l root
 
+sed -i 's/# Defaults log_output/Defaults timestamp_timeout=0/' /etc/sudoers
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
 useradd -m -G wheel -s /bin/zsh $DUSR
@@ -240,6 +241,8 @@ chmod 700 /mnt/root/part2.sh && arch-chroot /mnt /root/part2.sh
 rm /mnt/root/part2.sh
 
 rm /mnt/root/install-arch
+
+rm /mnt/root/install.txt
 
 umount -R /mnt
 
