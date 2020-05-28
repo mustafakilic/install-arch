@@ -12,6 +12,8 @@ DSWAP=""
 
 DHOST=""
 
+PHOST=""
+
 DINTE=`ip a|egrep '^2'|cut -d : -f 2|sed 's/^ *//'`
 
 DUSR=""
@@ -26,6 +28,12 @@ DPASSWD0=""
 
 DPASSWD1=""
 
+VUSR="Ver login"
+
+SSAIR="Sair"
+
+VSENHA="Ver senha"
+
 loadkeys br-abnt2
 
 echo "pt_BR.UTF-8 UTF-8" > /etc/locale.gen
@@ -36,7 +44,7 @@ export LANG=pt_BR.UTF-8
 
 ping -c 3 archlinux.org || echo "Não a conexão a internet" ; sleep 5
 
-timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; echo "Hora exata:\n "$(date +%H:%M)"" ; sleep 10
+timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; echo "Hora exata:\n$(date +%H:%M)" ; sleep 10
 
 if [[ -e /sys/firmware/efi/efivars ]];
 	then
@@ -149,15 +157,15 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 clear ; echo "Qual o nome do seu PC"
 
-read DHOST
+read PHOST
 
-clear ; echo "Qual o nome de usuário(Use apenas a-z 0-9). Este usuśrio tera poder de root"
+DHOST=`echo "$PHOST" | cut -d ' ' -f 1| tr 'A-Z' 'a-z' | tr -dc 'a-z|0-9'`
 
-read DUSR
-
-clear ; echo "Qual seu nome completo."
+echo "Qual o seu nome e sobrenome."
 
 read NOMEDUSR
+
+DUSR=`echo "$NOMEDUSR" | cut -d ' ' -f 1| tr 'A-Z' 'a-z' | tr -dc 'a-z|0-9'`
 
 clear
 
@@ -274,21 +282,34 @@ umount -R /mnt
 
 echo "=== MENU FINAL ==="
 
-select i in poweroff reboot
+echo "Seu login é: "$DUSR""
+
+select i in "$VUSR" "$VSENHA" poweroff reboot "$SSAIR"
 do
+	case "$i" in
+		"$VUSR"  )
+			echo "Seu login é: "$DUSR""
+		;;
 
-   case "$i" in
+		"$VSENHA")
+			clear ; echo "Sua senha: "$DPASSWD0""
+		;;
 
-      poweroff)
-	 poweroff -f
-         ;;
+	        chroot )
+			mount /dev/sd"$LETRAD""$DROOT" || mount /dev/sd"$LETRAD"3 ; arch-chroot /mnt /bin/zsh
+		;;
 
-      reboot)
-         reboot -f
-         ;;
+		poweroff )
+	 		poweroff -f
+         	;;
+		
+      		reboot   )
+         		reboot -f
+         	;;
 
-   esac
+	        "$SSAIR" )
+			break	
+		;;
 
+	esac
 done
-
-exit 0
