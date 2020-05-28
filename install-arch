@@ -161,7 +161,7 @@ read PHOST
 
 DHOST=`echo "$PHOST" | cut -d ' ' -f 1| tr 'A-Z' 'a-z' | tr -dc 'a-z|0-9'`
 
-echo "Qual o seu nome e sobrenome."
+clear ; echo "Qual o seu nome e sobrenome?"
 
 read NOMEDUSR
 
@@ -284,7 +284,7 @@ echo "=== MENU FINAL ==="
 
 echo "Seu login é: "$DUSR""
 
-select i in "$VUSR" "$VSENHA" poweroff reboot "$SSAIR"
+select i in "$VUSR" "$VSENHA" chroot poweroff reboot "$SSAIR"
 do
 	case "$i" in
 		"$VUSR"  )
