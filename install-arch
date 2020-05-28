@@ -44,7 +44,7 @@ export LANG=pt_BR.UTF-8
 
 ping -c 3 archlinux.org || echo "Não a conexão a internet" ; sleep 5
 
-timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; echo "Hora exata:\n$(date +%H:%M)" ; sleep 10
+timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; echo "Hora exata:" ; echo "$(date +%H:%M)" ; sleep 10
 
 if [[ -e /sys/firmware/efi/efivars ]];
 	then
@@ -250,7 +250,7 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
 useradd -m -G wheel -s /bin/zsh $DUSR
 
-usermod -c $NOMEDUSR $DUSR
+usermod -c "$NOMEDUSR" $DUSR
 
 echo $DUSR:$DPASSWD0 | chpasswd
 
