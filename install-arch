@@ -22,6 +22,10 @@ DMAN="manual"
 
 DAUTO="automático"
 
+DPASSWD0=""
+
+DPASSWD1=""
+
 loadkeys br-abnt2
 
 echo "pt_BR.UTF-8 UTF-8" > /etc/locale.gen
@@ -69,7 +73,7 @@ if [[ "$CH_DPAR" = 0 ]];
                 clear ; echo "Qual o número da partição que será a raiz?"
                 read DROOT
 
-		if [[ `mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD""$DROOT"` ]];
+		if [[ `mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD""$DROOT" -F` ]];
         
         		then
 				mount /dev/sd"$LETRAD""$DROOT" /mnt
@@ -81,7 +85,7 @@ if [[ "$CH_DPAR" = 0 ]];
 
 		read DSWAP
 
-		if [[ `mkswap -L SWAP /dev/sd"$LETRAD""$DSWAP"` ]];
+		if [[ `mkswap -L SWAP /dev/sd"$LETRAD""$DSWAP" -f` ]];
 		then
 			swapon /dev/sd"$LETRAD""$DSWAP"
 		else
@@ -102,9 +106,9 @@ if [[ "$CH_DPAR" = 0 ]];
 				
 				mkfs.vfat -n EFI /dev/sd"$LETRAD"1
 
-				mkswap -L SWAP /dev/sd"$LETRAD"2
+				mkswap -L SWAP /dev/sd"$LETRAD"2 -f
 
-				mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD"3
+				mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD"3 -F
 
 				mount /dev/sd"$LETRAD"3 /mnt
 
@@ -123,9 +127,9 @@ if [[ "$CH_DPAR" = 0 ]];
 
 				echo 'type=20' | sfdisk --force -N 3 /dev/sd"$LETRAD"
 				
-				mkswap -L SWAP /dev/sd"$LETRAD"2
+				mkswap -L SWAP /dev/sd"$LETRAD"2 -f
 
-				mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD"3
+				mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD"3 -F
 
 				mount /dev/sd"$LETRAD"3 /mnt
 
@@ -154,6 +158,28 @@ read DUSR
 clear ; echo "Qual seu nome completo."
 
 read NOMEDUSR
+
+while [[ true ]];
+do
+
+echo "Digiti sua senha "$NOMEDUSR""
+
+read -s DPASSWD0
+
+echo "Repita a senha"
+
+read -s DPASSWD1
+
+clear
+
+if [[ "$DPASSWD0" = "$DPASSWD1" ]];
+	then
+		echo "Sua senha é $DPASSWD0\." ; break
+	else
+		echo "As senhas não são iguais."
+fi
+
+done
 
 cat <<EOF > /mnt/root/part2.sh
 
@@ -216,9 +242,7 @@ useradd -m -G wheel -s /bin/zsh $DUSR
 
 usermod -c $NOMEDUSR $DUSR
 
-clear ; echo "Digite sua senha $NOMEDUSR"
-
-passwd $DUSR
+echo $DUSR:$DPASSWD0 | chpasswd
 
 if [[ $CH_UEFI = 0 ]];
 	then
@@ -236,7 +260,7 @@ exit
 
 EOF
 
-chmod 700 /mnt/root/part2.sh && arch-chroot /mnt /root/part2.sh
+chmod 700 /mnt/root/part2.sh && arch-chroot /mnt/root/part2.sh
 
 rm /mnt/root/part2.sh
 
@@ -254,11 +278,11 @@ do
    case "$i" in
 
       poweroff)
-	 poweroff
+	 poweroff -f
          ;;
 
       reboot)
-         reboot
+         reboot -f
          ;;
 
    esac
