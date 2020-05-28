@@ -92,13 +92,13 @@ if [[ "$CH_DPAR" = 0 ]];
 	else
 		if [[ "$CH_UEFI" = 0 ]];
 			then
-				echo 'label: gpt' | sfdisk /dev/sd"$LETRAD"
+				echo 'label: gpt' | sfdisk --force /dev/sd"$LETRAD"
 
-				echo 'size=+256M,type=01' | sfdisk /dev/sd"$LETRAD"
+				echo 'size=+256M,type=01' | sfdisk --force /dev/sd"$LETRAD"
 
-				echo 'size=+1G,type=19' | sfdisk -N 2 /dev/sd"$LETRAD"
+				echo 'size=+1G,type=19' | sfdisk --force -N 2 /dev/sd"$LETRAD"
 
-				echo 'type=20' | sfdisk -N 3 /dev/sd"$LETRAD"
+				echo 'type=20' | sfdisk --force -N 3 /dev/sd"$LETRAD"
 				
 				mkfs.vfat -n EFI /dev/sd"$LETRAD"1
 
@@ -112,16 +112,16 @@ if [[ "$CH_DPAR" = 0 ]];
 
 				mount /dev/sd"$LETRA"1 /mnt/boot/efi
 
-				swapon /dev/sd"$LRTRA"2
+				swapon /dev/sd"$LETRAD"2
 
 			else
-				echo 'label: gpt' | sfdisk /dev/sd"$LETRAD"
+				echo 'label: gpt' | sfdisk --force /dev/sd"$LETRAD"
 
-				echo 'size=+2M,type=04' | sfdisk /dev/sd"$LETRAD"
+				echo 'size=+2M,type=04' | sfdisk --force /dev/sd"$LETRAD"
 
-				echo 'size=+1G,type=19' | sfdisk -N 2 /dev/sd"$LETRAD"
+				echo 'size=+1G,type=19' | sfdisk --force -N 2 /dev/sd"$LETRAD"
 
-				echo 'type=20' | sfdisk -N 3 /dev/sd"$LETRAD"
+				echo 'type=20' | sfdisk --force -N 3 /dev/sd"$LETRAD"
 				
 				mkswap -L SWAP /dev/sd"$LETRAD"2
 
@@ -129,13 +129,13 @@ if [[ "$CH_DPAR" = 0 ]];
 
 				mount /dev/sd"$LETRAD"3 /mnt
 
-				swapon /dev/sd"$LRTRA"2
+				swapon /dev/sd"$LETRAD"2
 
 
 		fi
 fi
 
-echo "Server = http://10.0.0.2/$repo/os/$arch" > /etc/pacman.d/mirrorlist
+echo "Server = http://10.0.0.103/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 cp -axv / /mnt
 
@@ -182,8 +182,6 @@ pacman-key --populate archlinux
 ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
 
 hwclock --systohc
-
-echo "pt_BR.UTF-8 UTF-8" > /etc/locale.gen
 
 locale-gen
 
