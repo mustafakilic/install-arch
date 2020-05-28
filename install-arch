@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+CH_DPAR="0"
+
+CH_UEFI="1"
+
 LETRAD=""
 
 DROOT=""
@@ -14,6 +18,10 @@ DUSR=""
 
 NOMEDUSR=""
 
+DMAN="manual"
+
+DAUTO="automático"
+
 loadkeys br-abnt2
 
 echo "pt_BR.UTF-8 UTF-8" > /etc/locale.gen
@@ -24,7 +32,13 @@ export LANG=pt_BR.UTF-8
 
 ping -c 3 archlinux.org || echo "Não a conexão a internet" ; sleep 5
 
-timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; timedatectl status ; sleep 10
+timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; echo "Hora exata:\n "$(date +%H:%M)"" ; sleep 10
+
+if [[ -e /sys/firmware/efi/efivars ]];
+	then
+		CH_UEFI="0"
+		
+fi
 
 clear ; echo "##########" ; fdisk -l | egrep "^Disco /dev/sd" ; echo "##########"
 
@@ -32,31 +46,93 @@ echo "Qual o disco vai usar, exemplo sd[a-z]:"
 
 read LETRAD
 
-clear ; echo "Usando tabela GPT, crie três partições a sda1 como partição “BIOS inicialização” de no mínimo 4MB a sda2 será a raiz do sistema e a sda3 será swap de no mínimo 512MB." ; sleep 10
+echo "particionamento "$DMAN" ou "$DAUTO""
+select i in "$DMAN" "$DAUTO"
+do
+	case "$i" in
+		"$DMAN"  )
+		CH_DPAR="0" ; break
+		;;
 
-fdisk /dev/sd"$LETRAD"
+	        "$DAUTO" )
+		CH_DPAR="1" ; break
+		;;
+	esac
+done
 
-clear ; echo "Qual o número da partição que será a raiz?"
-read DROOT
-
-if [[ `mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD""$DROOT"` ]];
-        
-        then
-		mount /dev/sd"$LETRAD""$DROOT" /mnt
-	else
-		echo "Erro na sintaxe" ; exit
-fi
-
-clear ; echo "Qual o número da partição que será a swap"
-
-read DSWAP
-
-if [[ `mkswap -L SWAP /dev/sd"$LETRAD""$DSWAP"` ]];
+if [[ "$CH_DPAR" = 0 ]];
 	then
-		swapon /dev/sd"$LETRAD""$DSWAP"
-	else
-		echo "Erro na sintaxe"
+		clear ; echo "Usando tabela GPT, crie três partições a sda1 como partição “BIOS inicialização” de no mínimo 4MB a sda2 será a raiz do sistema e a sda3 será swap de no mínimo 512MB." ; sleep 10
+
+		fdisk /dev/sd"$LETRAD"
+
+                clear ; echo "Qual o número da partição que será a raiz?"
+                read DROOT
+
+		if [[ `mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD""$DROOT"` ]];
+        
+        		then
+				mount /dev/sd"$LETRAD""$DROOT" /mnt
+			else
+			echo "Erro na sintaxe" ; exit
+		fi
+
+		clear ; echo "Qual o número da partição que será a swap"
+
+		read DSWAP
+
+		if [[ `mkswap -L SWAP /dev/sd"$LETRAD""$DSWAP"` ]];
+		then
+			swapon /dev/sd"$LETRAD""$DSWAP"
+		else
+			echo "Erro na sintaxe"
 	
+		fi
+
+	else
+		if [[ "$CH_UEFI" = 0 ]];
+			then
+				echo 'label: gpt' | sfdisk /dev/sd"$LETRAD"
+
+				echo 'size=+256M,type=01' | sfdisk /dev/sd"$LETRAD"
+
+				echo 'size=+1G,type=19' | sfdisk -N 2 /dev/sd"$LETRAD"
+
+				echo 'type=20' | sfdisk -N 3 /dev/sd"$LETRAD"
+				
+				mkfs.vfat -n EFI /dev/sd"$LETRAD"1
+
+				mkswap -L SWAP /dev/sd"$LETRAD"2
+
+				mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD"3
+
+				mount /dev/sd"$LETRAD"3 /mnt
+
+				mkdir -p /mnt/boot/efi
+
+				mount /dev/sd"$LETRA"1 /mnt/boot/efi
+
+				swapon /dev/sd"$LRTRA"2
+
+			else
+				echo 'label: gpt' | sfdisk /dev/sd"$LETRAD"
+
+				echo 'size=+2M,type=04' | sfdisk /dev/sd"$LETRAD"
+
+				echo 'size=+1G,type=19' | sfdisk -N 2 /dev/sd"$LETRAD"
+
+				echo 'type=20' | sfdisk -N 3 /dev/sd"$LETRAD"
+				
+				mkswap -L SWAP /dev/sd"$LETRAD"2
+
+				mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD"3
+
+				mount /dev/sd"$LETRAD"3 /mnt
+
+				swapon /dev/sd"$LRTRA"2
+
+
+		fi
 fi
 
 echo "Server = http://10.0.0.2/$repo/os/$arch" > /etc/pacman.d/mirrorlist
@@ -145,7 +221,7 @@ clear ; echo "Digite sua senha $NOMEDUSR"
 
 passwd $DUSR
 
-if [[  -e /sys/firmware/efi/efivars ]];
+if [[ $CH_UEFI = 0 ]];
 	then
 		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Arch Linux"
 	else
@@ -164,6 +240,8 @@ EOF
 chmod 700 /mnt/root/part2.sh && arch-chroot /mnt /root/part2.sh
 
 rm /mnt/root/part2.sh
+
+rm /mnt/root/install-arch
 
 umount -R /mnt
 
