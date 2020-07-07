@@ -1,2 +1,2 @@
-# install-arch
+# kur-arch
 Çevrimdışı Arch Linux Kurlumu
