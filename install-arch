@@ -20,19 +20,19 @@ DUSR=""
 
 NOMEDUSR=""
 
-DMAN="manual"
+DMAN="kendin yap"
 
-DAUTO="automático"
+DAUTO="otomatik"
 
 DPASSWD0=""
 
 DPASSWD1=""
 
-VUSR="Ver login"
+VUSR="Kullanıcıdı"
 
-SSAIR="Sair"
+SSAIR="Çık"
 
-VSENHA="Ver senha"
+VSENHA="Şifre"
 
 loadkeys br-abnt2
 
