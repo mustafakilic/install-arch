@@ -78,7 +78,7 @@ if [[ "$CH_DPAR" = 0 ]];
 
 		fdisk /dev/sd"$LETRAD"
 
-                clear ; echo "Qual o número da partição que será a raiz?"
+                clear ; echo "Kök olacak bölüm numarası nedir?"
                 read DROOT
 
 		if [[ `mkfs.ext4 -m 1 -L ROOT /dev/sd"$LETRAD""$DROOT" -F` ]];
@@ -86,10 +86,10 @@ if [[ "$CH_DPAR" = 0 ]];
         		then
 				mount /dev/sd"$LETRAD""$DROOT" /mnt
 			else
-			echo "Erro na sintaxe" ; exit
+			echo "Sözdizimi hatası" ; exit
 		fi
 
-		clear ; echo "Qual o número da partição que será a swap"
+		clear ; echo "takas olacak bölümünün sayısı nedir?"
 
 		read DSWAP
 
@@ -97,7 +97,7 @@ if [[ "$CH_DPAR" = 0 ]];
 		then
 			swapon /dev/sd"$LETRAD""$DSWAP"
 		else
-			echo "Erro na sintaxe"
+			echo "Sözdizimi hatası"
 	
 		fi
 
