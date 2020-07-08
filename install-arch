@@ -280,19 +280,19 @@ rm /mnt/root/install.txt
 
 umount -R /mnt
 
-echo "=== MENU FINAL ==="
+echo "=== MENÜ SONU ==="
 
-echo "Seu login é: "$DUSR""
+echo "Giriş bilgileriniz: "$DUSR""
 
 select i in "$VUSR" "$VSENHA" chroot poweroff reboot "$SSAIR"
 do
 	case "$i" in
 		"$VUSR"  )
-			echo "Seu login é: "$DUSR""
+			echo "Kullanıcıadınız: "$DUSR""
 		;;
 
 		"$VSENHA")
-			clear ; echo "Sua senha: "$DPASSWD0""
+			clear ; echo "Şifreniz: "$DPASSWD0""
 		;;
 
 	        chroot )
