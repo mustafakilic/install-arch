@@ -20,7 +20,7 @@ DUSR=""
 
 NOMEDUSR=""
 
-DMAN="kendin yap"
+DMAN="el ile"
 
 DAUTO="otomatik"
 
@@ -28,7 +28,7 @@ DPASSWD0=""
 
 DPASSWD1=""
 
-VUSR="Kullanıcıdı"
+VUSR="Kullanıcıadı"
 
 SSAIR="Çık"
 
@@ -44,7 +44,7 @@ export LANG=tr_TR.UTF-8
 
 ping -c 3 archlinux.org || echo "İnternet bağlantısı yok" ; sleep 5
 
-timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; echo "Hora exata:" ; echo "$(date +%H:%M)" ; sleep 10
+timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; echo "Kesin zaman:" ; echo "$(date +%H:%M)" ; sleep 10
 
 if [[ -e /sys/firmware/efi/efivars ]];
 	then
@@ -52,13 +52,13 @@ if [[ -e /sys/firmware/efi/efivars ]];
 		
 fi
 
-clear ; echo "##########" ; fdisk -l | egrep "^Disco /dev/sd" ; echo "##########"
+clear ; echo "##########" ; fdisk -l | egrep "^Disk /dev/sd" ; echo "##########"
 
-echo "Qual o disco vai usar, exemplo sd[a-z]:"
+echo "Hangi disk kullanacak, disk harfi gir sd[a-z]:"
 
 read LETRAD
 
-echo "particionamento "$DMAN" ou "$DAUTO""
+echo "bölümleme "$DMAN" veya "$DAUTO""
 select i in "$DMAN" "$DAUTO"
 do
 	case "$i" in
