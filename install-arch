@@ -44,7 +44,7 @@ export LANG=tr_TR.UTF-8
 
 ping -c 3 archlinux.org || echo "İnternet bağlantısı yok" ; sleep 5
 
-timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime ; clear ; echo "Kesin zaman:" ; echo "$(date +%H:%M)" ; sleep 10
+timedatectl set-ntp true ; ln -sf /usr/share/zoneinfo/UTC /etc/localtime ; clear ; echo "Kesin zaman:" ; echo "$(date +%H:%M)" ; sleep 10
 
 if [[ -e /sys/firmware/efi/efivars ]];
 	then
@@ -74,7 +74,7 @@ done
 
 if [[ "$CH_DPAR" = 0 ]];
 	then
-		clear ; echo "Usando tabela GPT, crie três partições a sda1 como partição “BIOS inicialização” de no mínimo 4MB a sda2 será a raiz do sistema e a sda3 será swap de no mínimo 512MB." ; sleep 10
+		clear ; echo "GPT tablosunu kullanarak, en azından 4MB “BIOS önyükleme” bölümü olarak sda1 olacak, sda2 kök sistemi olacak ve sda3 en az 512MB takas olacak." ; sleep 10
 
 		fdisk /dev/sd"$LETRAD"
 
