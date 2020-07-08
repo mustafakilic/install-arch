@@ -147,7 +147,7 @@ if [[ "$CH_DPAR" = 0 ]];
 		fi
 fi
 
-echo "Server = http://10.0.0.103/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+echo "Sunucu = http://10.0.0.103/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 cp -axv / /mnt
 
@@ -155,13 +155,13 @@ cp -vaT /run/archiso/bootmnt/arch/boot/$(uname -m)/vmlinuz /mnt/boot/vmlinuz-lin
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
-clear ; echo "Qual o nome do seu PC"
+clear ; echo "Bilgisayaradı girin"
 
 read PHOST
 
 DHOST=`echo "$PHOST" | cut -d ' ' -f 1| tr 'A-Z' 'a-z' | tr -dc 'a-z|0-9'`
 
-clear ; echo "Qual o seu nome e sobrenome?"
+clear ; echo "Ad ve soyad girin"
 
 read NOMEDUSR
 
@@ -172,11 +172,11 @@ clear
 while [[ true ]];
 do
 
-echo "Digiti sua senha "$NOMEDUSR""
+echo "Şifrenizi girin "$NOMEDUSR""
 
 read -s DPASSWD0
 
-echo "Repita a senha"
+echo "doğrulamak için şifreyi tekrar girin"
 
 read -s DPASSWD1
 
@@ -186,7 +186,7 @@ if [[ "$DPASSWD0" = "$DPASSWD1" ]];
 	then
 		break
 	else
-		echo "As senhas não são iguais."
+		echo "Şifreler aynı değil."
 fi
 
 done
@@ -215,17 +215,17 @@ pacman-key --init
 
 pacman-key --populate archlinux
 
-ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 hwclock --systohc
 
 locale-gen
 
-export LANG=pt_BR.UTF-8
+export LANG=tr_TR.UTF-8
 
-echo "LANG=pt_BR.UTF-8" > /etc/locale.conf
+echo "LANG=tr_TR.UTF-8" > /etc/locale.conf
 
-echo "KEYMAP=br-abnt2" > /etc/vconsole.conf
+echo "KEYMAP=trf" > /etc/vconsole.conf
 
 echo $DHOST > /etc/hostname
 
